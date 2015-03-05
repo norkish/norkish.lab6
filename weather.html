@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>City Weather</title>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<!--api.jquery.com/jquery.getjson/ for api specifications-->
+</head>
+<body>
+<form>
+Enter a Utah City: <input type="text" id="cityfield" value=""><br>
+Suggestions: <span id="txtHint">Empty</span>
+<br>
+<input id="button" type="submit" value="Submit">
+</form>
+<textarea id="displaycity">No City</textarea>
+<div id="weather">No Weather</div>
+<script>
+
+
+$("#button").click(function(e) {
+	var value = $("#cityfield").val();
+	$("#displaycity").text(value);
+	e.preventDefault();
+	var url = "https://api.wunderground.com/api/f7f067be90d417e8/geolookup/conditions/q/UT/" + value + ".json";
+	console.log(url);
+	$.ajax({
+		url : url,
+		dataType : "jsonp",
+		success :function(data) {
+			console.log(data);
+			var weather_html = "<ul>";
+			weather_html += "<li> " + data.current_observation.weather + "</li>";
+			weather_html += "<li> " + data.current_observation.temperature_string + "</li>";
+			weather_html += "<li> Feels like " + data.current_observation.feelslike_string + "</li>";
+			weather_html += "<li> Wind is " + data.current_observation.wind_string+ "</li>";
+			weather_html += "<li> <img src=\"" + data.current_observation.icon_url + "\"></li>";
+			weather_html += "</ul>";
+
+			$("#weather").html(weather_html);
+		}
+	})
+
+});
+
+$("#cityfield").keyup(function () {
+	var url = "https://students.cs.byu.edu/~clement/CS360/ajax/getcity.cgi?q=";
+	url += $("#cityfield").val();
+	$.getJSON(url,function(data){
+		var everything = "<ul>";
+		$.each(data, function(i,item) {
+			everything += "<li>" + data[i].city + "</li>";
+		});
+		everything += "</ul>";
+		$("#txtHint").html(everything);
+	})
+	.fail(function(jqXHR, textStatus,errorThrown) {
+		console.log("Status: " + textStatus);
+		console.log("Content: " + jqXHR.responseText);
+	})
+	.done(function() {
+		console.log( "Done" );
+	});
+});
+</script>
+</body>
+</html>
